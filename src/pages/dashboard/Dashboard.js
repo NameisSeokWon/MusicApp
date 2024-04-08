@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
+import Container from "react-bootstrap/Container";
+import { Col, Row } from "react-bootstrap";
+import Table from "react-bootstrap/Table";
+import Button from "react-bootstrap/Button";
 
 const Dashboard = () => {
-    const data = [
-        { no: 1, singer: "Ariana Grande", title: "pov", time: "2024-04-06 10:00" },
-        { no: 2, singer: "IVE", title: "I AM(I AM)", time: "2024-04-06 11:00" },
-        // 나머지 데이터도 추가...
-    ];
+    const [musicLists, setMusicLists] = useState([]);
+
+    useEffect(() => {
+        const fetchMusicLists = async () => {
+            try {
+                const response = await fetch("http://localhost:8080/api/musicLists");
+                const data = await response.json();
+
+                setMusicLists(data);
+            } catch (error) {
+                console.error("Error fetching musicLists:", error.message);
+            }
+        };
+        fetchMusicLists();
+    }, []);
 
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -18,51 +32,38 @@ const Dashboard = () => {
     }, []);
 
     return (
-        <div className="dashboard">
-            <div className="top-right">
-                <div className="current-time">
-                    <span style={{fontSize: '24px', fontWeight: 'bold'}}>
-                        {currentTime.toLocaleTimeString()}
-                    </span>
-                </div>
-                <img src="/image/images.png" alt="Restaurant Image"/>
-            </div>
-            <h1>プレイリスト</h1>
-            <div className="list-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>順番</th>
-                        <th>アーティスト</th>
-                        <th>タイトル</th>
-                        <th>申請時間</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {data.map((item, index) => (
-                        <tr key={index}>
-                            <td>{item.no}</td>
-                            <td>{item.singer}</td>
-                            <td>{item.title}</td>
-                            <td>{item.time}</td>
+        <Container className="mt-5">
+            <Row>
+                <Col>
+                    <h1 className="text-center">MusicLists</h1>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                        <tr>
+                            <th>順番</th>
+                            <th>アーティスト</th>
+                            <th>タイトル</th>
+                            <th>申請時間</th>
+                            <th>操作</th> {/* 새로운 헤더 셀 추가 */}
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
-            <div className="video-container">
-                <iframe
-                    width="935"
-                    height="526"
-                    src="https://www.youtube.com/embed/lf_wVfwpfp8"
-                    title="Ariana Grande - Focus (Official Video)"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin"
-                    allowfullscreen
-                ></iframe>
-            </div>
-        </div>
+                        </thead>
+                        <tbody>
+                        {musicLists.map((musicList, index) => (
+                            <tr key={musicList.id}>
+                                <td>{index + 1}</td> {/* index 값은 0부터 시작하므로 1을 더해줌 */}
+                                <td>{musicList.singer}</td>
+                                <td>{musicList.title}</td>
+                                <td>{musicList.requesttime}</td>
+                                <td>
+                                    <Button variant="outline-secondary">Update</Button>{" "}
+                                    <Button variant="outline-danger">Delete</Button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </Table>
+                </Col>
+            </Row>
+        </Container>
     );
 };
 
