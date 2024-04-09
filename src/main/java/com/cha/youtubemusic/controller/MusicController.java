@@ -5,7 +5,7 @@ import com.cha.youtubemusic.service.MusicService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,5 +37,20 @@ public class MusicController {
         } catch (EntityNotFoundException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/musicList/{id}")
+    public ResponseEntity<?> getMusicListById(@PathVariable Long id){
+        MusicList musicList = musicService.getMusicListById(id);
+        if(musicList == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(musicList);
+    }
+
+    @PatchMapping("/musicList/{id}")
+    public ResponseEntity<?> updateMusicList(@PathVariable Long id, @RequestBody MusicList musicList){
+        MusicList updateMusicList = musicService.updateMusicList(id, musicList);
+
+        if(updateMusicList == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.ok(updateMusicList);
     }
 }

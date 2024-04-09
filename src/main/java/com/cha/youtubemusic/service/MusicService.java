@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,5 +29,21 @@ public class MusicService {
         }
 
         musicRepository.deleteById(id);
+    }
+
+    public MusicList getMusicListById(Long id){
+        return musicRepository.findById(id).orElse(null);
+    }
+
+    public MusicList updateMusicList(Long id, MusicList musicList){
+        Optional<MusicList> optionalMusicList = musicRepository.findById(id);
+        if(optionalMusicList.isPresent()){
+            MusicList existingMusicList = optionalMusicList.get();
+            existingMusicList.setSinger(musicList.getSinger());
+            existingMusicList.setTitle(musicList.getTitle());
+
+            return musicRepository.save(existingMusicList);
+        }
+        return null;
     }
 }

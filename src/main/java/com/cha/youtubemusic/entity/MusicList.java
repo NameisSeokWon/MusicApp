@@ -18,6 +18,6 @@ public class MusicList {
 
     private String title;
 
-    private String requesttime;
+    private String request_time;
 
 }
