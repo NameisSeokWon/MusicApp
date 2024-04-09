@@ -1,10 +1,13 @@
-import { useState } from "react";
-import "./PostSong.css";
+import './UpdateSong.css';
+import {useEffect, useState} from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
-const PostSong = () => {
+const UpdateSong = () =>{
+    const {id} = useParams();
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         singer: "",
         title: ""
@@ -18,7 +21,18 @@ const PostSong = () => {
         });
     };
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        const fetchMusicList = async () =>{
+            try{
+                const response = await fetch(`http://localhost:8080/api/musicList/${id}`);
+                const data = await response.json();
+                setFormData(data);
+            } catch(error){
+                console.error("Error fetching user: ", error.message);
+            }
+        }
+        fetchMusicList();
+    },[id]);
 
     const handleSubmit = async(e) =>{
         e.preventDefault();
@@ -26,25 +40,26 @@ const PostSong = () => {
         console.log(formData);
 
         try{
-            const response = await fetch("http://localhost:8080/api/musicList",{
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
+            // eslint-disable-next-line no-template-curly-in-string
+            const response = await fetch(`http://localhost:8080/api/musicList/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             });
 
-            const data =await response.json();
-            console.log("A music is requested : ", data);
-            navigate("/")
+            const data = await response.json();
+            console.log("User updated: ", data);
 
+            navigate(`/`)
         } catch(error){
-            console.log("Error creating musiclist", error.message);
+            console.error("Error updating user: ", error.message);
         }
     }
 
-    return (
+    return(
         <>
             <div className="center-form">
-                <h1>Request your favorite song!!</h1>
+                <h1>Edit MusicList</h1>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group controlId="formBasicName" autoComplete="off">
                         <Form.Control
@@ -84,12 +99,12 @@ const PostSong = () => {
                     {/*    ></iframe>*/}
                     {/*</div>*/}
                     <Button variant="primary" className="btn-request">
-                        申請
+                        修正
                     </Button>
                 </div>
             </div>
         </>
-    );
-};
+    )
+}
 
-export default PostSong;
+export default UpdateSong;
